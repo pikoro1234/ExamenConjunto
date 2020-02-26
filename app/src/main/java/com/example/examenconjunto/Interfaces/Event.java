@@ -1,7 +1,9 @@
 package com.example.examenconjunto.Interfaces;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -9,8 +11,17 @@ import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
+import com.example.examenconjunto.ConexionPSQL.ConexionPsql;
 import com.example.examenconjunto.R;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -31,6 +42,13 @@ public class Event extends Fragment {
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+
+    Button cancelar,insertar;
+
+    String fechaComoCadena,horaComoCadena;
+
+    TextView nombre,lugar,fecha,organizador,sala,precio,aforo,descripcion;
+
 
     public Event() {
         // Required empty public constructor
@@ -67,7 +85,124 @@ public class Event extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_event, container, false);
+
+        //construccion de formateo de fecha
+        final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+
+        final SimpleDateFormat hourFormat = new SimpleDateFormat("HH:mm:ss");
+
+        fechaComoCadena = sdf.format(new Date());
+
+        horaComoCadena = hourFormat.format(new Date());
+
+        View vista = inflater.inflate(R.layout.fragment_event, container, false);
+
+        //TextView nombre,lugar,fecha,organizador,sala,precio,aforo,descripcion;
+
+        nombre = vista.findViewById(R.id.tnombreevent);
+
+        lugar = vista.findViewById(R.id.tlugarevent);
+
+        fecha = vista.findViewById(R.id.tfechaevent);
+
+        organizador = vista.findViewById(R.id.tcorreevent);
+
+        sala = vista.findViewById(R.id.tsalaevent);
+
+        precio = vista.findViewById(R.id.tprecioevent);
+
+        aforo = vista.findViewById(R.id.taforoevent);
+
+        descripcion = vista.findViewById(R.id.tdescripcionevent);
+
+        insertar = vista.findViewById(R.id.insertarEvent);
+
+        insertar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //String nombreh, String lugarh, String fechah, String organizadorh, String salah, String descripcionh, int precioh, int aforoh
+                //instacia de postgres
+                final hiloInsertarEvent hilos = new hiloInsertarEvent(nombre.getText().toString(),lugar.getText().toString(),fecha.getText().toString(),organizador.getText().toString(),sala.getText().toString(),descripcion.getText().toString(),Integer.parseInt(precio.getText().toString()),Integer.parseInt(precio.getText().toString()));
+
+                hilos.execute();
+
+            }
+        });
+
+
+        return vista;
+    }
+
+    //clase multitarea
+    public class hiloInsertarEvent extends AsyncTask<String,Void,String> {
+
+        //TextView nombre,lugar,fecha,organizador,sala,precio,aforo,descripcion;
+
+        private final String nombreh,lugarh,fechah,organizadorh,salah,descripcionh;
+
+        private final int precioh,aforoh;
+
+        public hiloInsertarEvent(String nombreh, String lugarh, String fechah, String organizadorh, String salah, String descripcionh, int precioh, int aforoh) {
+            this.nombreh = nombreh;
+
+            this.lugarh = lugarh;
+
+            this.fechah = fechah;
+
+            this.organizadorh = organizadorh;
+
+            this.salah = salah;
+
+            this.descripcionh = descripcionh;
+
+            this.precioh = precioh;
+
+            this.aforoh = aforoh;
+        }
+
+        @SuppressLint("WrongThread")
+        @Override
+        protected String doInBackground(String... strings) {
+
+            ConexionPsql conexionPsql = new ConexionPsql();
+
+
+            Connection con = null;
+
+            con = conexionPsql.conectar();
+
+
+            if (con != null){
+
+                try {
+
+                    String insertEvent = "insert into eventdetail(nombre,fecha,lugar,organizador,sala,precio,aforo,descripcion) \n" +
+                            "values (?,?,?,?,?,?,?,?);\n";
+
+                    PreparedStatement insercionEventos;
+
+                    insercionEventos = con.prepareStatement(insertEvent);
+
+                    insercionEventos.setString(1,nombre.getText().toString());
+                    insercionEventos.setString(2,fechaComoCadena);
+                    insercionEventos.setString(3,lugar.getText().toString());
+                    insercionEventos.setString(4,organizador.getText().toString());
+                    insercionEventos.setString(5,sala.getText().toString());
+                    insercionEventos.setInt(6, Integer.parseInt(precio.getText().toString()));
+                    insercionEventos.setInt(7, Integer.parseInt(aforo.getText().toString()));
+                    insercionEventos.setString(8,descripcion.getText().toString());
+                    insercionEventos.executeUpdate();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+
+
+            return null;
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -94,7 +229,8 @@ public class Event extends Fragment {
         mListener = null;
     }
 
-    /**
+
+        /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
