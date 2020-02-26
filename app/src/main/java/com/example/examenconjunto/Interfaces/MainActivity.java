@@ -25,7 +25,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
 
-public class MainActivity extends AppCompatActivity implements Assistent.OnFragmentInteractionListener, Event.OnFragmentInteractionListener {
+public class MainActivity extends AppCompatActivity implements Assistent.OnFragmentInteractionListener, Event.OnFragmentInteractionListener,ListadoAssisten.OnFragmentInteractionListener {
 
     private AppBarConfiguration mAppBarConfiguration;
 
