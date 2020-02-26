@@ -1,7 +1,11 @@
-package com.example.examenconjunto;
+package com.example.examenconjunto.Interfaces;
 
+import android.net.Uri;
 import android.os.Bundle;
 
+import com.example.examenconjunto.Interfaces.Assistent;
+import com.example.examenconjunto.Interfaces.Event;
+import com.example.examenconjunto.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -21,7 +25,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.view.Menu;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Assistent.OnFragmentInteractionListener, Event.OnFragmentInteractionListener {
 
     private AppBarConfiguration mAppBarConfiguration;
 
@@ -65,5 +69,10 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
+    }
+
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
     }
 }
